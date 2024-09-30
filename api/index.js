@@ -10,14 +10,14 @@ import errorHandler from './middleware/errorHandler.js';
 import verifyJWT from './middleware/verifyJWT.js';
 import cookieParser from 'cookie-parser';
 import credentials from './middleware/credentials.js';
-import { fileURLToPath } from 'url'; // Import for __dirname
-import { dirname } from 'path'; // Import for dirname
 
 // Get the current file name and directory name
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+
+const __dirname = path.resolve()
 
 const app = express();
+app.use(express.static(path.join(__dirname,'/client/dist')))
+
 const PORT = process.env.PORT || 3500;
 
 // Database connection
@@ -36,8 +36,7 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false })); // to get form data to res body
 app.use(express.json()); // to get json data
 app.use(cookieParser());
-app.use('/', express.static(path.join(__dirname, 'public'))); // to serve static files
-app.use('/subdir', express.static(path.join(__dirname, 'public')));
+
 
 // Using the routes with ES modules
 import subdirRoutes from './Routes/subdir.js';
@@ -63,15 +62,8 @@ app.use(verifyJWT);
 app.use('/users', userRoutes);
 
 // 404
-app.all('*', (req, res) => {
-  res.status(404);
-  if (req.accepts('html')) {
-    res.sendFile(path.join(__dirname, "views", "404.html"));
-  } else if (req.accepts('json')) {
-    res.json({ Error: "404 Not Found" });
-  } else {
-    res.type('txt').send("Not Found 404");
-  }
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname,'client','dist','index.html'))
 });
 
 app.use(errorHandler);
