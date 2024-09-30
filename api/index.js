@@ -1,76 +1,82 @@
-require('dotenv').config();
-const express = require('express');
-const path=require('path')
-const cors=require('cors')
-const corsOptions=require("./config/corsOptions")
-const connectDB = require('./config/dbConn');
-const mongoose = require('mongoose');
-const { logger, logEvents } = require('./middleware/logger');
-const errorHandler = require('./middleware/errorHandler');
-const verifyJWT=require('./middleware/verifyJWT')
-const cookieParser=require('cookie-parser')
-const credentials=require('./middleware/credentials')
+import dotenv from 'dotenv';
+import express from 'express';
+import path from 'path';
+import cors from 'cors';
+import corsOptions from './config/corsOptions.js';
+import connectDB from './config/dbConn.js';
+import mongoose from 'mongoose';
+import { logger } from './middleware/logger.js';
+import errorHandler from './middleware/errorHandler.js';
+import verifyJWT from './middleware/verifyJWT.js';
+import cookieParser from 'cookie-parser';
+import credentials from './middleware/credentials.js';
+import { fileURLToPath } from 'url'; // Import for __dirname
+import { dirname } from 'path'; // Import for dirname
+
+// Get the current file name and directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3500;
 
-//Database connection
-connectDB()
+// Database connection
+connectDB();
 
-//custom middle ware
-app.use(logger)
+// Custom middleware
+app.use(logger);
 
-//handle options credentials check-before cors
-//and fetch cookies credentials requirements
-app.use(credentials)
+// Handle options credentials check-before cors
+app.use(credentials);
 
+// CORS
+app.use(cors(corsOptions));
 
-//cors
-app.use(cors(corsOptions))
+// Adding middleware
+app.use(express.urlencoded({ extended: false })); // to get form data to res body
+app.use(express.json()); // to get json data
+app.use(cookieParser());
+app.use('/', express.static(path.join(__dirname, 'public'))); // to serve static files
+app.use('/subdir', express.static(path.join(__dirname, 'public')));
 
+// Using the routes with ES modules
+import subdirRoutes from './Routes/subdir.js';
+import adminRegisterRoutes from './Routes/adminRegister.js';
+import authRoutes from './Routes/auth.js'; 
+import refreshRoutes from './Routes/refresh.js';
+import logoutRoutes from './Routes/logout.js';
+import inventoryRoutes from './Routes/API/inventoryRoutes.js';
+import pdfGenRoutes from './Routes/API/pdfGen.js';
+import companyRoutes from './Routes/API/companyRoutes.js';
+import userRoutes from './Routes/API/userRoutes.js';
 
-//adding middle ware
+app.use('/', subdirRoutes);
+app.use('/register', adminRegisterRoutes);
+app.use('/auth', authRoutes); // login
+app.use('/refresh', refreshRoutes); // Refresh
+app.use('/logout', logoutRoutes); // logout
+app.use('/inventory', inventoryRoutes);
+app.use('/reports', pdfGenRoutes);
+app.use('/companies', companyRoutes);
 
-app.use(express.urlencoded({extended:false}))//to get form data to res body
+app.use(verifyJWT);
+app.use('/users', userRoutes);
 
-app.use(express.json()) //to get json data
-
-app.use(cookieParser())
-
-app.use('/',express.static(path.join(__dirname,'/public'))) //to serve static files
-app.use('/subdir',express.static(path.join(__dirname,'/public')))
-
-
-//using the routes
-app.use('/',require('./Routes/subdir'))
-app.use('/register', require('./Routes/adminRegister'))
-app.use('/auth', require('./Routes/auth'))  //login
-app.use('/refresh', require('./Routes/refresh')) //Refresh
-app.use('/logout', require('./Routes/logout')) //logout
-app.use('/inventory', require('./Routes/API/inventoryRoutes'));
-app.use('/reports', require('./Routes/API/pdfGen'));
-app.use('/companies', require('./Routes/API/companyRoutes'));
-
-app.use(verifyJWT)
-app.use('/users', require('./Routes/API/userRoutes'))
-
-//404
-app.all('*',(req,res)=>{
-  res.status(404)
-  if(req.accepts('html')){
-      res.sendFile(path.join(__dirname,"views","404.html"))
+// 404
+app.all('*', (req, res) => {
+  res.status(404);
+  if (req.accepts('html')) {
+    res.sendFile(path.join(__dirname, "views", "404.html"));
+  } else if (req.accepts('json')) {
+    res.json({ Error: "404 Not Found" });
+  } else {
+    res.type('txt').send("Not Found 404");
   }
-  else if(accepts('json')){
-      res.json({Error:"404 Not Found"})
-  }
-  else{
-      res.type('txt').send("Not Found 404")
-  }
-})
+});
 
-app.use(errorHandler)
+app.use(errorHandler);
 
-mongoose.connection.once('open',()=>{
-  console.log("Connected to MongoDB")
-  app.listen(PORT,()=>console.log(`Running on port ${PORT}`))
-})
+mongoose.connection.once('open', () => {
+  console.log("Connected to MongoDB");
+  app.listen(PORT, () => console.log(`Running on port ${PORT}`));
+});
