@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3500', // Base URL for the API
+  baseURL: 'https://acme-ochre-rho.vercel.app/', // Base URL for the API
   headers: {
     'Content-Type': 'application/json',
   },
