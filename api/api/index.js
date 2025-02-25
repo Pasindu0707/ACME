@@ -25,7 +25,7 @@ connectDB();
 
 // Custom middleware
 app.use(logger);
-
+app.options('*', cors(corsOptions));  // Handle all OPTIONS requests
 // Handle options credentials check-before cors
 app.use(credentials);
 
