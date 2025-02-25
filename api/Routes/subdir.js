@@ -9,6 +9,7 @@ const __dirname = dirname(__filename);
 
 const router = express.Router();
 
+// Route to handle index.html and homepage
 router.get('^/$|index(.html)?', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'views', 'index.html'));
 });
