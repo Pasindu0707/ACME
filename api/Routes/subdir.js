@@ -11,7 +11,9 @@ const router = express.Router();
 
 // Route to handle index.html and homepage
 router.get('^/$|index(.html)?', (req, res) => {
+    console.log('Index route hit');
     res.sendFile(path.join(__dirname, '..', 'views', 'index.html'));
 });
+
 
 export default router;

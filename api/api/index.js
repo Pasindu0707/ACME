@@ -63,8 +63,9 @@ app.use('/users', userRoutes);
 
 // 404
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname,'client','dist','index.html'))
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'))
 });
+
 
 app.use(errorHandler);
 
