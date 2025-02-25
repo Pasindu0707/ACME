@@ -62,9 +62,12 @@ app.use(verifyJWT);
 app.use('/users', userRoutes);
 
 // 404
+app.use(express.static('client/dist'));
+
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname,'client','dist','index.html'))
+  res.sendFile(path.resolve(__dirname, 'client', 'dist', 'index.html'));
 });
+
 
 app.use(errorHandler);
 
