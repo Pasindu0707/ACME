@@ -27,9 +27,12 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle errors globally if needed
-    return Promise.reject(error);
+      if (error.response && error.response.status === 404) {
+          console.error('404 error on:', error.response.config.url);
+      }
+      return Promise.reject(error);
   }
 );
+
 
 export default axiosInstance;
