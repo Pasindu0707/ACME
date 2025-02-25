@@ -25,13 +25,13 @@ connectDB();
 
 // Custom middleware
 app.use(logger);
-app.options('*', cors(corsOptions));  // Handle all OPTIONS requests
+
 // Handle options credentials check-before cors
 app.use(credentials);
 
 // CORS
 app.use(cors(corsOptions));
-
+app.options('*', cors(corsOptions)); 
 // Adding middleware
 app.use(express.urlencoded({ extended: false })); // to get form data to res body
 app.use(express.json()); // to get json data
