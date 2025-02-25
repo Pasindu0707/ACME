@@ -1,6 +1,5 @@
 // axiosInstance.js
 import axios from 'axios';
-axiosInstance.defaults.withCredentials = true;
 
 const axiosInstance = axios.create({
   baseURL: 'https://acme-ochre-rho.vercel.app', // Base URL for the API

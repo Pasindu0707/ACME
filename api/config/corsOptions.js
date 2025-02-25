@@ -1,14 +1,14 @@
 import allowedOrigins from './allowedOrigins.js';
-import cors from 'cors';
 
 const corsOptions = {
-    origin: '*', // Temporarily allow all origins for debugging
-    credentials: true, 
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    optionsSuccessStatus: 200,
-    credentials: true,
-};
-  
+    origin: (origin, callback) => {
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    optionsSuccessStatus: 200
+}
 
 export default corsOptions;
